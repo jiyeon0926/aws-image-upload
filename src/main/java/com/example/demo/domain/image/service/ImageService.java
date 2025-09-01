@@ -59,6 +59,7 @@ public class ImageService {
 
                         Image image = new Image(imageUrl, fileName);
                         Image savedImage = imageRepository.save(image);
+
                         return new ImageResDto(savedImage);
                     } catch (IOException e) {
                         throw new RuntimeException("파일 업로드 실패:" + file.getOriginalFilename());
