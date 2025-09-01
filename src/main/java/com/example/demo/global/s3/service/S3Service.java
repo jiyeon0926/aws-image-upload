@@ -1,9 +1,7 @@
 package com.example.demo.global.s3.service;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,21 +19,15 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public String uploadFileToFolder(MultipartFile file, String folderName) {
+    public String uploadFileToFolder(MultipartFile file, String folderName) throws IOException {
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         String key = folderName + "/" + fileName;
 
-        try {
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(file.getSize());
-            metadata.setContentType(file.getContentType());
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(file.getSize());
+        metadata.setContentType(file.getContentType());
 
-            amazonS3.putObject(new PutObjectRequest(bucket, key, file.getInputStream(), metadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
-
-        } catch (IOException e) {
-            throw new RuntimeException("파일 업로드 실패", e);
-        }
+        amazonS3.putObject(bucket, key, file.getInputStream(), metadata);
 
         return amazonS3.getUrl(bucket, key).toString();
     }
